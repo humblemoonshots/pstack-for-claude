@@ -22,9 +22,11 @@ prs=$(mktemp)
 gh pr list --author "@me" --state all --limit 1000 \
 	--json number,state,headRefName 2>/dev/null > "$prs" || echo "[]" > "$prs"
 
-# Transcripts dir: ~/.cursor/projects/<slugified-repo-path>/agent-transcripts.
-slug=$(printf '%s' "$main_wt" | sed 's#^/##; s#/#-#g')
-transcripts="$HOME/.cursor/projects/$slug/agent-transcripts"
+# Claude Code keys transcripts by working directory, not by repository:
+# ~/.claude/projects/<slug>/*.jsonl, where <slug> replaces every character
+# outside [A-Za-z0-9-] with "-" (so the leading "/" becomes a leading "-").
+# Each worktree therefore has its own project directory, resolved in the loop.
+slugify() { printf '%s' "$1" | sed 's#[^A-Za-z0-9-]#-#g'; }
 now=$(date +%s)
 
 printf "SIZE\tAGE\tMERGED\tDIRTY\tREMOTE\tPR\tLAST_CHAT\tBUCKET\tWORKTREE\n"
@@ -60,14 +62,17 @@ git worktree list --porcelain | awk '/^worktree /{print $2}' | while read -r wt;
 		'.[] | select(.headRefName==$b) | "#\(.number)/\(.state)"' "$prs" 2>/dev/null | head -1)
 	[ -z "$pr" ] && pr="-"
 
-	# Most recent chat whose transcript operated in this worktree. Match path
-	# followed by "/" or a quote so glint-482 does not match glint-482-r37.
+	# Most recent chat run in this worktree. Its project directory is keyed by
+	# the worktree path itself, so every transcript inside is already scoped to
+	# it and the newest mtime is the answer; no content match is needed.
 	last="-"; last_ts=0
+	transcripts="$HOME/.claude/projects/$(slugify "$wt")"
 	if [ -d "$transcripts" ]; then
-		f=$(rg -l -e "${wt}/" -e "${wt}\"" "$transcripts" 2>/dev/null \
-			| xargs stat -f '%m %N' 2>/dev/null | sort -rn | head -1)
-		if [ -n "$f" ]; then last_ts=$(echo "$f" | awk '{print $1}')
-			last=$(date -r "$last_ts" '+%Y-%m-%d' 2>/dev/null); fi
+		last_ts=$(find "$transcripts" -name '*.jsonl' -print0 2>/dev/null \
+			| xargs -0 stat -f '%m' 2>/dev/null | sort -rn | head -1)
+		[ -z "$last_ts" ] && last_ts=0
+		[ "$last_ts" -gt 0 ] 2>/dev/null \
+			&& last=$(date -r "$last_ts" '+%Y-%m-%d' 2>/dev/null)
 	fi
 	recent=$([ "$last_ts" -gt 0 ] 2>/dev/null && [ $(( (now - last_ts) / 86400 )) -le 4 ] && echo yes || echo no)
 
