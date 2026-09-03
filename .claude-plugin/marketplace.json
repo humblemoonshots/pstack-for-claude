@@ -1,6 +1,6 @@
 {
   "name": "pstack-for-claude",
-  "description": "Merott's Claude Code fork of poteto's pstack, tracked against upstream cursor/plugins.",
+  "description": "Claude Code fork of poteto's pstack, tracked against upstream cursor/plugins.",
   "owner": { "name": "Merott" },
   "plugins": [
     {

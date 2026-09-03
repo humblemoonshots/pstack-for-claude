@@ -16,7 +16,16 @@ fork it. improve it. make it yours. PRs are welcome!
 
 > **this is a claude code fork of [cursor/plugins/pstack](https://github.com/cursor/plugins/tree/main/pstack).** the skill layout is unchanged; the manifest, model names, tool names, transcript paths, and references to cursor-only skills have been repointed at claude code equivalents. see [what changed](#claude-code-fork-notes).
 
-vendor it into a repo under `.claude/pstack/` and install it as a local plugin. from the repo root:
+this directory ships inside the [pstack-for-claude](https://github.com/humblemoonshots/pstack-for-claude) marketplace. install it once at user level and every project gets it:
+
+```bash
+claude plugin marketplace add humblemoonshots/pstack-for-claude
+claude plugin install pstack@pstack-for-claude
+```
+
+the marketplace readme covers the settings.json form and how to run it from a working tree while hacking on it.
+
+to vendor it into a single repo instead, copy this directory to `.claude/pstack/` and install it as a local plugin. from the repo root:
 
 ```bash
 mkdir -p .claude/.claude-plugin

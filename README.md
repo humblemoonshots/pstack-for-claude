@@ -1,10 +1,12 @@
 # pstack-for-claude
 
-A Claude Code marketplace holding my fork of [poteto](https://x.com/poteto)'s
-[pstack](https://github.com/cursor/plugins/tree/main/pstack). Registered once at
-user level so every project gets it, rather than copying the plugin per repo.
+A Claude Code marketplace holding a fork of [poteto](https://x.com/poteto)'s
+[pstack](https://github.com/cursor/plugins/tree/main/pstack), ported from
+Cursor to Claude Code. Register it once at user level and every project gets
+the plugin, rather than copying it per repo.
 
-Upstream is MIT; see `plugins/pstack/LICENSE`.
+MIT. The root `LICENSE` covers the whole repo; `plugins/pstack/LICENSE` is
+upstream's original notice, kept verbatim.
 
 ## Layout
 
@@ -15,29 +17,37 @@ plugins/pstack/                   the plugin (upstream pstack + the port below)
 
 ## Install
 
-Already wired up in `~/.claude/settings.json`:
+```sh
+claude plugin marketplace add humblemoonshots/pstack-for-claude
+claude plugin install pstack@pstack-for-claude
+```
+
+Or declare it in `~/.claude/settings.json` so it survives a fresh machine:
 
 ```json
 {
   "enabledPlugins": { "pstack@pstack-for-claude": true },
   "extraKnownMarketplaces": {
     "pstack-for-claude": {
-      "source": { "source": "directory", "path": "/Users/merott/workspace/pstack-for-claude" }
+      "source": { "source": "github", "repo": "humblemoonshots/pstack-for-claude" }
     }
   }
 }
 ```
 
-`directory` is the development source type: Claude Code reads this working tree
-in place, so an edit here is live in the next session with no reinstall. The
-path is absolute on purpose — tilde expansion is not documented for a directory
-source. If this ever stops being a tree I edit, switch to a `git` source
-pointing at the private remote and let Claude Code clone it instead.
+To hack on the plugin itself, clone the repo and point the marketplace at the
+working tree instead. Claude Code then reads the tree in place, so an edit is
+live in the next session with no reinstall. The path must be absolute; tilde
+expansion is not documented for a directory source.
+
+```json
+"source": { "source": "directory", "path": "/absolute/path/to/pstack-for-claude" }
+```
 
 ## Port notes
 
-Upstream targets Cursor. Beyond the manifest rename the Notebox copy already
-carried (`.cursor-plugin/` → `.claude-plugin/`, documented in the plugin's own
+Upstream targets Cursor. Beyond the manifest rename an earlier per-repo
+vendored copy already carried (`.cursor-plugin/` → `.claude-plugin/`, documented in the plugin's own
 README), this fork changes the following. Reapply the table after any upstream
 sync.
 
