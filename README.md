@@ -70,6 +70,14 @@ The 18 command-style skills (`arena`, `tdd`, `architect`, …) keep
 `disable-model-invocation: true`. They are workflows you trigger deliberately,
 which is what that flag is for.
 
+## Behavioural deviations
+
+The table above translates Cursor mechanics into Claude Code mechanics without changing what the plugin does. The changes below do change behaviour. Each is a choice made on the port's own terms, with the reasoning here so it can be revisited. Reapply them after any upstream sync.
+
+| skill | upstream | here | why |
+| --- | --- | --- | --- |
+| `technical-writing` | `disable-model-invocation: true`, so only a person can run it | model-invocable | It is guidance with no subagents and no side effects, and its description already names when it applies (docs, readmes, PR descriptions, commit messages). Workflows that write documentation should be able to invoke it by name at that point rather than stop and ask a person to. `unslop`, the same kind of skill, is already model-invocable, and this makes the two consistent. |
+
 ## Known upstream bug, not ported around
 
 `worktree-audit.sh` parses `git worktree list --porcelain` with awk `$2`, which
@@ -81,7 +89,7 @@ it stays a clean diff against upstream.
 Upstream was at 0.14.2 when this fork was cut from 0.14.1.
 
 ```sh
-# diff this tree against a fresh upstream checkout, then reapply the table above
+# diff this tree against a fresh upstream checkout, then reapply the tables above
 git clone --depth 1 --filter=blob:none --sparse https://github.com/cursor/plugins /tmp/cursor-plugins
 git -C /tmp/cursor-plugins sparse-checkout set pstack
 diff -ru /tmp/cursor-plugins/pstack plugins/pstack
